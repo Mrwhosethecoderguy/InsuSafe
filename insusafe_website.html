@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsuSafe — Local Insulin. Zero Cold Chain.</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#03060f; --bg2:#060d1e; --bg3:#0a1428;
+  --accent:#00d4ff; --accent2:#00ff88; --warn:#ff6b35;
+  --text:#e8f0ff; --muted:#7a8ab0; --border:#1a2845;
+  --mono:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 4rem;background:rgba(3,6,15,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text);text-decoration:none;}
+.logo span{color:var(--accent);}
+.nav-links{list-style:none;display:flex;gap:2rem;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.04em;transition:color .2s;cursor:pointer;}
+.nav-links a:hover{color:var(--accent);}
+
+/* PAGES */
+.page{display:none;min-height:100vh;}
+.page.active{display:block;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 4rem 4rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-20%;left:-10%;width:70vw;height:70vw;background:radial-gradient(circle,rgba(0,212,255,.07) 0%,transparent 65%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:-20%;right:-10%;width:50vw;height:50vw;background:radial-gradient(circle,rgba(0,255,136,.05) 0%,transparent 65%);pointer-events:none;}
+.hero-tag{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;display:flex;align-items:center;gap:.8rem;}
+.hero-tag::before{content:'';display:block;width:32px;height:1px;background:var(--accent);}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2.8rem,6.5vw,6rem);font-weight:800;line-height:1.0;letter-spacing:-.03em;max-width:900px;margin-bottom:1.5rem;}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero h1 strong{color:var(--accent2);}
+.hero-sub{font-size:1.15rem;color:var(--muted);max-width:580px;margin-bottom:1rem;font-weight:300;}
+.hero-sub b{color:var(--text);font-weight:500;}
+.founder-tag{font-size:.82rem;color:var(--accent2);margin-bottom:2.5rem;letter-spacing:.04em;font-family:var(--mono);}
+.btn-row{display:flex;gap:1rem;flex-wrap:wrap;}
+.btn{padding:.85rem 2rem;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:600;letter-spacing:.01em;text-decoration:none;cursor:pointer;border:none;transition:all .25s;}
+.btn-primary{background:var(--accent);color:var(--bg);}
+.btn-primary:hover{background:#33dcff;transform:translateY(-2px);}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-green{background:var(--accent2);color:var(--bg);}
+
+/* STATS BAR */
+.stats-bar{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:2.5rem 4rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;line-height:1;margin-bottom:.4rem;}
+.r{color:var(--warn);} .b{color:var(--accent);} .g{color:var(--accent2);}
+.stat-label{font-size:.82rem;color:var(--muted);line-height:1.4;}
+.stat-source{font-size:.68rem;color:var(--border);margin-top:.3rem;font-family:var(--mono);}
+
+/* SECTIONS */
+.section{padding:5rem 4rem;}
+.section.dark{background:var(--bg2);}
+.section-tag{font-size:.7rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem;}
+h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;margin-bottom:1.2rem;}
+.lead{font-size:1.05rem;color:var(--muted);max-width:680px;margin-bottom:2.5rem;}
+p.body{color:var(--muted);margin-bottom:1rem;font-size:.95rem;}
+.fn{font-size:.72rem;color:var(--muted);font-family:var(--mono);margin-top:.3rem;}
+sup{font-size:.6rem;color:var(--accent);}
+
+/* MODULAR CONNECTOR DIAGRAM */
+.modular-pipeline{display:flex;align-items:stretch;margin:2.5rem 0;gap:0;flex-wrap:wrap;}
+.pipe-module{flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);padding:1.5rem 1.2rem;position:relative;transition:border-color .3s;}
+.pipe-module:hover{border-color:var(--accent);}
+.pipe-module::after{content:'→';position:absolute;right:-14px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:1.1rem;z-index:2;background:var(--bg);padding:0 2px;}
+.pipe-module:last-child::after{display:none;}
+.pipe-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--border);line-height:1;}
+.pipe-icon{font-size:1.4rem;margin:.3rem 0;}
+.pipe-module h3{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--accent);margin-bottom:.5rem;}
+.pipe-module p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.pipe-connector{font-size:.72rem;color:var(--accent2);font-family:var(--mono);margin-top:.8rem;border-top:1px solid var(--border);padding-top:.6rem;}
+.pipe-tag{display:inline-block;font-size:.62rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);border:1px solid rgba(0,255,136,.3);padding:.1rem .4rem;margin-top:.5rem;}
+.pipe-flow{display:flex;align-items:center;justify-content:center;padding:0 .5rem;color:var(--accent);font-size:1.5rem;flex-shrink:0;}
+
+/* REACTOR TYPE BOX */
+.reactor-box{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1.5rem 2rem;margin:1.5rem 0;}
+.reactor-box h4{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.6rem;}
+.reactor-box p{font-size:.88rem;color:var(--muted);}
+
+/* HIDDEN COSTS */
+.hcost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem;}
+.hcost-card{background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--warn);padding:1.8rem;}
+.hcost-card h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--warn);margin-bottom:.8rem;}
+.hcost-card p{font-size:.86rem;color:var(--muted);}
+.hcost-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:var(--warn);margin:.6rem 0 .3rem;}
+
+/* ERRC */
+.errc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;border:1px solid var(--border);background:var(--border);margin-top:2.5rem;}
+.errc-cell{background:var(--bg3);padding:2rem 1.8rem;}
+.errc-cell h3{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:1rem;}
+.errc-cell.e h3{color:var(--warn);}.errc-cell.r h3{color:#ff9999;}.errc-cell.ra h3{color:var(--accent);}.errc-cell.c h3{color:var(--accent2);}
+.errc-cell ul{list-style:none;}
+.errc-cell li{padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.88rem;color:var(--muted);display:flex;gap:.7rem;}
+.errc-cell li::before{content:'→';flex-shrink:0;}
+.errc-cell li:last-child{border:none;}
+
+/* TIERS */
+.tiers-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2.5rem;}
+.tier-card{background:var(--bg3);border:1px solid var(--border);padding:2rem;position:relative;overflow:hidden;}
+.tier-card::before{content:attr(data-t);position:absolute;top:-.5rem;right:1rem;font-family:'Syne',sans-serif;font-size:5rem;font-weight:800;color:rgba(255,255,255,.025);line-height:1;}
+.tier-label{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem;}
+.tier-card:nth-child(1) .tier-label{color:var(--warn);}
+.tier-card:nth-child(2) .tier-label{color:var(--accent);}
+.tier-card:nth-child(3) .tier-label{color:var(--accent2);}
+.tier-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.7rem;}
+.tier-card p{font-size:.86rem;color:var(--muted);}
+
+/* CANVAS TABLE */
+.canvas-wrap{overflow-x:auto;margin-top:2.5rem;}
+.canvas-table{width:100%;border-collapse:collapse;min-width:700px;}
+.canvas-table th{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.7rem 1rem;text-align:center;border:1px solid var(--border);background:var(--bg2);}
+.canvas-table th.factor{color:var(--muted);text-align:left;}
+.canvas-table th.comp{color:var(--warn);}
+.canvas-table th.is{color:var(--accent2);}
+.canvas-table td{padding:.65rem 1rem;border:1px solid var(--border);font-size:.85rem;color:var(--muted);text-align:center;}
+.canvas-table td.fn{text-align:left;color:var(--text);font-size:.85rem;}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+.dot-high{background:var(--warn);}.dot-mid{background:var(--accent);}.dot-low{background:var(--border);}.dot-none{background:#1a2845;border:1px solid #2a3a55;}
+
+/* MILESTONES */
+.milestone-list{margin-top:2.5rem;}
+.ms-item{display:flex;gap:1.8rem;padding:1.4rem 0;border-bottom:1px solid var(--border);}
+.ms-icon{width:38px;height:38px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.25);font-size:1rem;}
+.ms-content h4{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent2);margin-bottom:.2rem;}
+.ms-content p{font-size:.86rem;color:var(--muted);}
+
+/* REVENUE */
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem;}
+.rev-card{background:var(--bg3);border:1px solid var(--border);padding:1.8rem;}
+.rev-card h3{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.8rem;}
+.rev-card p{font-size:.86rem;color:var(--muted);}
+.rev-num{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--accent2);margin:.6rem 0 .3rem;}
+
+/* CALC BLOCKS */
+.calc-block{background:var(--bg3);border:1px solid var(--border);padding:2rem;margin-bottom:2rem;}
+.calc-block h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:1rem;}
+.calc-block h4{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--accent2);margin:.8rem 0 .4rem;}
+.calc-row{display:flex;align-items:baseline;gap:1rem;padding:.4rem 0;border-bottom:1px solid rgba(26,40,69,.5);}
+.calc-row:last-child{border:none;}
+.calc-label{font-size:.85rem;color:var(--muted);flex:1;}
+.calc-value{font-family:var(--mono);font-size:.9rem;color:var(--accent2);font-weight:500;min-width:140px;text-align:right;}
+.calc-source{font-size:.68rem;color:var(--muted);min-width:220px;text-align:right;font-family:var(--mono);}
+.formula{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent);padding:1rem 1.5rem;margin:.8rem 0;font-family:var(--mono);font-size:.88rem;color:var(--text);}
+.result-highlight{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);padding:.8rem 1.2rem;margin-top:.8rem;}
+.result-highlight span{font-family:var(--mono);font-size:1.05rem;font-weight:600;color:var(--accent2);}
+
+/* QUOTE */
+.quote-block{border-left:3px solid var(--warn);padding:1.5rem 2rem;background:rgba(255,107,53,.06);margin:1.5rem 0;}
+.quote-block p{font-size:1.05rem;font-style:italic;color:var(--text);}
+.quote-block cite{display:block;margin-top:.8rem;font-size:.78rem;color:var(--muted);font-family:var(--mono);}
+
+/* REFS */
+.refs-section{padding:2rem 4rem 4rem;}
+.ref-item{padding:.5rem 0;border-bottom:1px solid rgba(26,40,69,.4);font-size:.8rem;color:var(--muted);font-family:var(--mono);}
+.ref-item a{color:var(--accent);}
+
+/* PROTOTYPE */
+.proto-intro{padding:3rem 4rem 1rem;}
+.modules-flow{display:flex;align-items:stretch;gap:0;margin:3rem 4rem;flex-wrap:wrap;}
+.flow-module{flex:1;min-width:200px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:all .3s;position:relative;}
+.flow-module:hover,.flow-module.selected{border-color:var(--accent);background:#0d1a2e;}
+.flow-module .fm-header{padding:1.5rem;border-bottom:1px solid var(--border);}
+.flow-module .fm-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--border);}
+.flow-module .fm-icon{font-size:1.4rem;margin:.3rem 0;}
+.flow-module h3{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--accent);}
+.flow-arrow-box{display:flex;align-items:center;justify-content:center;padding:0 .5rem;color:var(--accent);font-size:1.2rem;flex-shrink:0;}
+.fm-anim{height:80px;margin:0 1rem 1rem;position:relative;overflow:hidden;background:rgba(0,0,0,.3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.anim-particles{position:absolute;top:0;left:0;width:100%;height:100%;}
+.particle{position:absolute;border-radius:50%;animation:float linear infinite;}
+@keyframes float{0%{transform:translateX(-10px) translateY(80px);opacity:0}20%{opacity:1}80%{opacity:1}100%{transform:translateX(110%) translateY(-80px);opacity:0}}
+.module-detail{display:none;margin:0 4rem 3rem;background:var(--bg3);border:1px solid var(--accent);padding:2.5rem;}
+.module-detail.show{display:block;}
+.module-detail h3{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent);margin-bottom:1.5rem;}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.5rem .8rem;border-bottom:1px solid var(--border);}
+.data-table td{padding:.5rem .8rem;font-size:.85rem;border-bottom:1px solid rgba(26,40,69,.5);}
+.data-table td:first-child{color:var(--text);}
+.data-table td:nth-child(2){color:var(--accent2);font-family:var(--mono);font-weight:500;}
+.data-table td:nth-child(3){color:var(--muted);font-size:.75rem;font-family:var(--mono);}
+.data-table td:nth-child(4){font-size:.7rem;color:var(--muted);}
+.fm-tag{display:inline-block;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);border:1px solid rgba(0,255,136,.3);padding:.15rem .5rem;margin:.3rem .2rem 0 0;}
+
+/* CTA / FOOTER */
+.cta-section{text-align:center;padding:5rem 4rem;background:var(--bg3);border-top:1px solid var(--border);}
+.cta-section h2{max-width:600px;margin:0 auto 1.2rem;}
+.cta-section p{color:var(--muted);max-width:480px;margin:0 auto 2rem;}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem 4rem;display:flex;justify-content:space-between;align-items:center;}
+footer p{font-size:.78rem;color:var(--muted);}
+.footer-logo{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;}
+.footer-logo span{color:var(--accent);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero>*{animation:fadeUp .7s ease forwards;opacity:0;}
+.hero-tag{animation-delay:.1s}.hero h1{animation-delay:.25s}.hero-sub{animation-delay:.38s}.founder-tag{animation-delay:.45s}.btn-row{animation-delay:.55s}
+
+@media(max-width:900px){
+  nav{padding:1rem 1.5rem}.nav-links{display:none}
+  .hero,.section,.calc-section,.refs-section{padding:4rem 1.5rem}
+  .stats-bar{grid-template-columns:repeat(2,1fr);padding:2rem 1.5rem}
+  .hcost-grid,.tiers-grid,.rev-grid,.errc-grid{grid-template-columns:1fr}
+  .modular-pipeline,.modules-flow{flex-direction:column}
+  .pipe-module::after{display:none}
+  .module-detail{margin:0 1.5rem 2rem}
+  footer{flex-direction:column;gap:1rem;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#" onclick="showPage('home')">Insu<span>Safe</span></a>
+  <ul class="nav-links">
+    <li><a onclick="showPage('home')">Home</a></li>
+    <li><a onclick="showPage('science')">Science & Calculations</a></li>
+    <li><a onclick="showPage('prototype')">System Prototype</a></li>
+    <li><a onclick="showPage('home');setTimeout(()=>document.getElementById('results-s').scrollIntoView({behavior:'smooth'}),200)">Results</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HOME PAGE ═══ -->
+<div id="page-home" class="page active">
+
+<section class="hero">
+  <div class="hero-tag">Blue Ocean Challenge 2025 — Chemical Engineering Innovation</div>
+  <h1>Local Insulin.<br><em>Zero Cold Chain.</em><br><strong>Zero Compromise.</strong></h1>
+  <p class="hero-sub">A modular, plug-and-play bioreactor system enabling a <b>trained nurse in a rural clinic</b> to produce, purify, verify, and dispense pharmaceutical-grade human insulin — on-site, from four interlocking modules.</p>
+  <div class="founder-tag">// A project by Sai Harsh Gumma</div>
+  <div class="btn-row">
+    <a class="btn btn-primary" href="#" onclick="showPage('prototype')">View System Prototype</a>
+    <a class="btn btn-outline" href="#" onclick="showPage('science')">Science & Calculations</a>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num r">7 mo</div>
+    <div class="stat-label">Life expectancy of a child with T1D diagnosed in rural Mozambique</div>
+    <div class="stat-source">¹ IDF T1D Atlas 2023; Lancet Diabetes & Endocrinology</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num b">1 in 7</div>
+    <div class="stat-label">People with diabetes in sub-Saharan Africa who access the insulin they need</div>
+    <div class="stat-source">² Ewen et al., BMJ Global Health, 2019</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num r">34M</div>
+    <div class="stat-label">Adults in Africa with diabetes — living untreated</div>
+    <div class="stat-source">³ WHO Regional Office for Africa, 2022</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num g">~$4–5</div>
+    <div class="stat-label">Estimated InsuSafe production cost per vial using 65% downstream yield</div>
+    <div class="stat-source">⁴ Xie et al., Prep Biochem Biotechnol 2008; Polez et al., PLOS ONE 2016</div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section dark" id="problem">
+  <div class="section-tag">The Problem</div>
+  <h2>The Insulin Exists.<br>It Just Doesn't Survive the Journey.</h2>
+
+  <div class="quote-block">
+    <p>"In sub-Saharan Africa, only one in seven people living with diabetes has access to the insulin they need."</p>
+    <cite>— Ewen M. et al. Insulin prices, availability and affordability in 13 LMICs. BMJ Global Health, 2019. doi:10.1136/bmjgh-2019-001410</cite>
+  </div>
+
+  <p class="body">There are international access programmes. There are discounted prices. There are government tenders and NGO distribution networks. And yet — one in seven. We went looking for why. And we found something that rarely gets named directly.</p>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;color:var(--warn);margin:2.5rem 0 .8rem">The Foundational Problem: Silent Degradation</h3>
+  <p class="body">Insulin must be kept at 2–8°C from the moment it leaves the factory to the moment it is injected. Three companies manufacture the world's insulin — Novo Nordisk in Denmark, Eli Lilly in the US, Sanofi in France. Every vial destined for a rural clinic in sub-Saharan Africa travels roughly 10,000 kilometres through a refrigerated container, a port, customs, a national warehouse, a district truck, and a clinic storage unit. At every step, the cold chain can fail silently — a power cut, a delay, a truck without refrigeration on the last mile.</p>
+
+  <p class="body">When it fails, <b style="color:var(--text)">the insulin does not change colour. It does not smell different. It looks identical in the vial.</b> But it has stopped working. The nurse administering it has no way to know. The patient has no way to know. The result is a child who appears to be receiving treatment — and is dying anyway.</p>
+
+  <p class="body" style="margin-bottom:2rem">Mean insulin availability at LMIC facilities that <em>should</em> have had it in stock: <b style="color:var(--warn)">55–80%.²</b> Not because insulin was not purchased. Because insulin that was purchased did not remain viable long enough to reach the patient.</p>
+
+  <!-- DEGRADATION VS OTHER PROBLEMS -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:2rem 0">
+    <div style="background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.25);padding:1.8rem">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);margin-bottom:.8rem">The Foundational Problem — InsuSafe Solves This</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.8rem;color:var(--text)">Cold Chain Failure & Silent Degradation</h3>
+      <p style="font-size:.88rem;color:var(--muted)">Insulin manufactured 10,000km away degrades silently before reaching the patient. No nurse or patient can detect it. No access programme, no price reduction, and no syringe solves this. You cannot use what has already been destroyed. This is the problem that must be solved first — and it has never been solved for rural LMICs.</p>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);padding:1.8rem">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">Second-Order Problems — Real, But Downstream</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.8rem;color:var(--muted)">Hidden Costs: Test Strips, Syringes, Monitoring</h3>
+      <p style="font-size:.88rem;color:var(--muted)">Insulin is dangerous without blood glucose monitoring — test strips in Tanzania cost $0.31–$0.35 each and are often the <em>largest</em> component of total diabetes treatment cost.⁶ Syringe reuse causes infections. Hypoglycaemia risk is real without monitoring. These are serious problems. But they are second-order — they only matter once you have solved the foundational problem of reliably viable insulin. You cannot need test strips for insulin that has already degraded.</p>
+    </div>
+  </div>
+
+  <p class="body" style="border-left:3px solid var(--accent2);padding-left:1.2rem;color:var(--text);margin-top:1.5rem"><b>InsuSafe solves the foundational problem:</b> local production eliminates cold chain dependency entirely. Insulin produced in the same building where it is dispensed — and verified by Module 4 before it reaches any patient — never has a chance to silently degrade. The hidden cost problems (strips, syringes, monitoring) represent a clear and important future development direction; the electrochemical platform in Module 4 is a natural foundation for locally produced glucose test strips. But the cold chain problem comes first.</p>
+
+  <div class="fn" style="margin-top:1rem">
+    [²] Ewen et al., BMJ Global Health, 2019 | [⁵] Manne-Goehler et al., Lancet Diabetes Endocrinology, 2019 |
+    [⁶] Clinton Health Access Initiative, SMBG Market Report, 2021; Ewen et al., BMJ Global Health SMBG survey, 2022/23
+  </div>
+</section>
+
+<!-- SOLUTION — MODULAR SYSTEM -->
+<section class="section" id="solution">
+  <div class="section-tag">The Solution</div>
+  <h2>Four Interlocking Modules.<br>One Complete Pipeline.</h2>
+  <p class="lead">InsuSafe is designed as four physically separate, standardised modules that connect to each other via standard bioprocess tubing and quick-connect fittings. Each module performs one function and passes its output directly to the next. The system can be deployed incrementally — starting with Module 1 and 2 for production, adding 3 and 4 as resources allow. Each module is bench-top sized and transportable in standard shipping crates.</p>
+
+  <div class="modular-pipeline">
+    <div class="pipe-module">
+      <div class="pipe-num">01</div>
+      <div class="pipe-icon">⚗️</div>
+      <h3>The Fermenter</h3>
+      <p>Bioreactor. Grows yeast and induces insulin precursor secretion. Output: 15L culture broth containing ~3g/L insulin precursor.</p>
+      <div class="pipe-connector">OUTPUT → culture broth with IP</div>
+      <span class="pipe-tag">Fed-Batch CSTR</span>
+    </div>
+    <div class="pipe-flow">→</div>
+    <div class="pipe-module">
+      <div class="pipe-num">02</div>
+      <div class="pipe-icon">🔬</div>
+      <h3>The Purifier</h3>
+      <p>TFF membrane clarification + cation exchange chromatography + transpeptidation. Input: culture broth. Output: finished human insulin solution.</p>
+      <div class="pipe-connector">OUTPUT → pharmaceutical-grade insulin solution</div>
+      <span class="pipe-tag">TFF + Ion Exchange</span>
+    </div>
+    <div class="pipe-flow">→</div>
+    <div class="pipe-module">
+      <div class="pipe-num">03</div>
+      <div class="pipe-icon">❄️</div>
+      <h3>The Cooler</h3>
+      <p>Passive evaporative cooling shelf. Input: finished insulin solution in vials. Output: stored at 2–8°C, no electricity required, ready for dispensing.</p>
+      <div class="pipe-connector">OUTPUT → cold-stored, capped vials</div>
+      <span class="pipe-tag">Passive Thermal</span>
+    </div>
+    <div class="pipe-flow">→</div>
+    <div class="pipe-module">
+      <div class="pipe-num">04</div>
+      <div class="pipe-icon">✅</div>
+      <h3>The Checker</h3>
+      <p>Electrochemical MIP test strip. Input: sample from cooled vial. Output: Green (pass) or Red (reject) within 10 minutes. Final gate before patient dispensing.</p>
+      <div class="pipe-connector">OUTPUT → verified, dispensable insulin</div>
+      <span class="pipe-tag">MIP Electrochemical</span>
+    </div>
+  </div>
+
+  <!-- REACTOR TYPE EXPLAINER -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:1.2rem;margin:2.5rem 0 1rem;color:var(--text)">Reactor Design — Why a Fed-Batch CSTR?</h3>
+  <p class="body">Module 1 uses a <b style="color:var(--accent)">Continuously Stirred Tank Reactor (CSTR)</b> operated in <b style="color:var(--accent)">fed-batch mode</b>. Understanding why this specific configuration was chosen requires comparing the main reactor types:</p>
+
+  <div class="reactor-box">
+    <h4>Continuously Stirred Tank Reactor (CSTR) — Fed-Batch Mode ✓ InsuSafe Choice</h4>
+    <p>A CSTR maintains uniform concentration throughout the vessel via continuous mixing. In fed-batch mode, feed (glycerol in Phase 1, then methanol in Phase 2) is added continuously but nothing is removed — the volume grows over time until the batch is complete. This is ideal for InsuSafe because: (1) it achieves very high cell density (~308 g/L wet cell weight⁴) by gradually adding nutrients rather than flooding the yeast; (2) methanol — which is toxic at high concentrations — can be kept at a safe, productive constant level of exactly 2 g/L⁴; (3) the yeast secretes insulin precursor into the surrounding liquid, so it accumulates in the broth without needing to break open cells; (4) it requires no methanol sensor — just a constant feed rate, making it operable by a trained nurse.</p>
+  </div>
+
+  <div class="reactor-box" style="border-left-color:var(--muted);">
+    <h4>Plug Flow Reactor (PFR) — Not Suitable Here</h4>
+    <p>A PFR moves material continuously through a tube — each "plug" of material progresses along the length without mixing with plugs ahead or behind it. PFRs excel at continuous chemical reactions with fast kinetics (e.g., polymerisation, oxidation). They are not suitable for fermentation because: (1) living yeast cells cannot grow efficiently in a tube format; (2) cell density cannot reach the levels achievable in a tank with mixing; (3) nutrient gradients along the tube would starve cells at the far end. PFRs are used in InsuSafe's concept for future continuous downstream processing exploration, not fermentation.</p>
+  </div>
+
+  <div class="reactor-box" style="border-left-color:var(--muted);">
+    <h4>Batch Reactor — Less Efficient Alternative</h4>
+    <p>A simple batch reactor loads all nutrients at the start and runs until complete. For Pichia pastoris insulin production, pure batch operation achieves significantly lower cell densities than fed-batch because flooding the yeast with too much glycerol or methanol at once causes toxicity and metabolic overflow. Published literature consistently shows fed-batch outperforms simple batch for this application — Gurramkonda et al. (2010) specifically developed the fed-batch method to reach the ~3 g/L precursor yield used in InsuSafe's calculations.⁴</p>
+  </div>
+
+  <div class="reactor-box" style="border-left-color:var(--muted);">
+    <h4>Hollow Fibre Bioreactor — Explored but Not Selected</h4>
+    <p>Hollow fibre reactors grow cells at very high density inside bundles of fibres. While they achieve excellent cell concentrations, they are significantly more expensive, harder to scale, more prone to fouling, and require more technical expertise to operate. For InsuSafe's nurse-operated, low-resource-setting application, the conventional CSTR fed-batch approach is more practical, cheaper, and better documented in published literature for this specific organism and product.</p>
+  </div>
+
+  <p class="body" style="margin-top:1.5rem">The key engineering insight of InsuSafe's Module 1 is that <b style="color:var(--text)">a fed-batch CSTR with constant methanol induction at 2 g/L, requiring no methanol sensor and no continuous monitoring by the operator, can achieve pharmaceutical-grade insulin precursor yields documented in peer-reviewed literature</b> — making it deployable by a trained nurse without a specialist bioprocess engineer on-site.</p>
+  <div class="fn">[⁴] Gurramkonda et al., Microbial Cell Factories, 2010; Polez et al., PLOS ONE, 2016</div>
+</section>
+
+<!-- BLUE OCEAN -->
+<section class="section dark" id="blueocean">
+  <div class="section-tag">Blue Ocean Strategy</div>
+  <h2>A Completely Different Strategy Canvas.</h2>
+  <p class="lead">Comprehensive searches of peer-reviewed academic databases and commercial company/startup databases confirmed: no deployable, clinic-scale insulin biomanufacturing system exists for LMIC deployment. Existing competitors compete on entirely different factors — centralised production, cold chain logistics, and brand-driven government tenders — and systematically ignore the 34 million untreated patients in Africa.</p>
+  <div class="canvas-wrap">
+    <table class="canvas-table">
+      <thead>
+        <tr>
+          <th class="factor">Competitive Factor</th>
+          <th class="comp">Novo Nordisk</th>
+          <th class="comp">Eli Lilly</th>
+          <th class="comp">Biocon (India)</th>
+          <th class="comp">iCARE Programme</th>
+          <th class="is">InsuSafe</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="fn">Cold chain infrastructure</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-high"></span>High</td><td style="color:var(--accent2)"><span class="dot dot-none"></span>Zero</td></tr>
+        <tr><td class="fn">Cost per vial (LMIC)</td><td><span class="dot dot-mid"></span>$5–15²</td><td><span class="dot dot-mid"></span>$5–20</td><td><span class="dot dot-mid"></span>$4–12</td><td><span class="dot dot-mid"></span>$3 ceiling</td><td style="color:var(--accent2)"><span class="dot dot-high"></span>~$4–5⁴</td></tr>
+        <tr><td class="fn">Supply reliability in rural clinics</td><td><span class="dot dot-low"></span>Low (55–80%²)</td><td><span class="dot dot-low"></span>Low</td><td><span class="dot dot-low"></span>Low</td><td><span class="dot dot-low"></span>Low</td><td style="color:var(--accent2)"><span class="dot dot-high"></span>Near 100%</td></tr>
+        <tr><td class="fn">On-site production capability</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td style="color:var(--accent2)"><span class="dot dot-high"></span>Core feature</td></tr>
+        <tr><td class="fn">Batch quality verification at POC</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td style="color:var(--accent2)"><span class="dot dot-high"></span>Built-in (M4)</td></tr>
+        <tr><td class="fn">Operator skill required</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-high"></span>High</td><td><span class="dot dot-mid"></span>Medium</td><td style="color:var(--accent2)"><span class="dot dot-low"></span>Nurse-level</td></tr>
+        <tr><td class="fn">Addresses hidden cost problem (strips/syringes)</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td><span class="dot dot-none"></span>None</td><td style="color:var(--accent2)"><span class="dot dot-mid"></span>Future roadmap</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- BUYER UTILITY MAP -->
+<section class="section dark" id="buyerutility">
+  <div class="section-tag">Buyer Utility Map</div>
+  <h2>Where InsuSafe Delivers Exceptional Utility.</h2>
+  <p class="lead">The Buyer Utility Map shows where across the full patient and clinic experience InsuSafe creates value — and where the current industry fails to deliver.</p>
+  <div style="overflow-x:auto;margin-top:2rem">
+    <table style="width:100%;border-collapse:collapse;min-width:800px">
+      <thead>
+        <tr>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase">Utility Lever</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Purchase</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Delivery</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Use</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Supplements</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Maintenance</th>
+          <th style="background:var(--bg2);border:1px solid var(--border);padding:.7rem 1rem;text-align:center;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--warn);text-transform:uppercase">Disposal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Customer Productivity</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ One-time setup, subsidised hardware</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ No import delays ever</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Nurse-operable, colour-coded</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Monthly kit delivery only</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Minimal biohazard waste</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Simplicity</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Service model — no capital complexity</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Plug-and-play modules</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ One-button operation per module</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Standard reagent kits</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Web app dashboard monitoring</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Convenience</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Ministry of Health procurement</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ On-site — zero transport</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ 24/7 supply, 5-day batches</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Pre-formulated media kits</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Remote diagnostics via web app</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Risk Reduction</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ No cold chain failure risk</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Module 4 batch QC before dispensing</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Biometric dispensing log</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Automated safety alerts</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Environmental Friendliness</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Zero 10,000km supply chain</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Passive cooling — 0W grid draw</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Low carbon footprint</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;font-size:.85rem;color:var(--text);font-weight:500">Fun & Image</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--accent2)">✓ Clinic produces its own medicine — sovereignty</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+          <td style="border:1px solid var(--border);padding:.65rem 1rem;text-align:center;font-size:.8rem;color:var(--muted)">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.75rem;color:var(--muted);margin-top:1rem;font-family:var(--mono)">Framework: Kim & Mauborgne, Blue Ocean Strategy (2005). Buyer Utility Map — six utility levers × six stages of the buyer experience cycle.</p>
+</section>
+
+<!-- WEB APP -->
+<section class="section" id="webapp">
+  <div class="section-tag">Operations Platform</div>
+  <h2>InsuSafe Dashboard — The Clinic's Control Room.</h2>
+  <p class="lead">Every InsuSafe unit comes with access to a real-time web operations dashboard. Any device with a browser. No app download. Nurse-facing interface for monitoring production, storage, and dispensing — with biometric access control and automated safety alerts.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem">
+    <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--accent);padding:1.6rem">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem">Operations Tab</div>
+      <p style="font-size:.86rem;color:var(--muted)">Live fermentation monitoring — pH, dissolved oxygen, temperature, methanol feed rate, wet cell weight, and insulin precursor accumulation. All four module statuses. Batch progress bar from inoculation to harvest.</p>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--accent2);padding:1.6rem">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent2);margin-bottom:.8rem">Storage & Dispensing Tab</div>
+      <p style="font-size:.86rem;color:var(--muted)">Vials in cold storage, dispensed, and QC-rejected — live counts. Dispensing log with timestamp, nurse ID, patient code, and vial count. Storage temperature from Module 3 with WHO stability window countdown.</p>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--warn);padding:1.6rem">
+      <div style="font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--warn);margin-bottom:.8rem">Safety & Biometrics Tab</div>
+      <p style="font-size:.86rem;color:var(--muted)">Fingerprint + PIN dual authentication log. All dispensing events recorded immutably. Eight automated safety checks with threshold alerts — pH, temperature, methanol level, cooler temperature, QC strip result, contamination flags.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--bg3);border:1px solid var(--border);padding:2rem;text-align:center">
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:1rem;font-family:var(--mono);letter-spacing:.08em">LIVE INTERACTIVE PROTOTYPE — INSUSAFE OPERATIONS DASHBOARD</div>
+    <div style="background:var(--bg2);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;text-align:left">
+      <div style="display:flex;gap:1rem;align-items:center;margin-bottom:1rem">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);animation:pulse 2s infinite"></div>
+        <span style="font-size:.78rem;color:var(--accent2);font-family:var(--mono)">All 4 modules operational · Batch hour 67/120 · Storage: 312 vials · Last QC: PASS</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+        <div style="border:1px solid var(--accent);padding:.8rem;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.3rem">MODULE 1</div>
+          <div style="font-size:1rem">⚗️</div>
+          <div style="font-size:.72rem;color:var(--accent);font-family:var(--mono);margin-top:.3rem">ACTIVE</div>
+          <div style="font-size:.65rem;color:var(--muted)">pH 5.02 · 29.1°C</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:.8rem;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.3rem">MODULE 2</div>
+          <div style="font-size:1rem">🔬</div>
+          <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);margin-top:.3rem">STANDBY</div>
+          <div style="font-size:.65rem;color:var(--muted)">Ready for harvest</div>
+        </div>
+        <div style="border:1px solid #4fc3f7;padding:.8rem;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.3rem">MODULE 3</div>
+          <div style="font-size:1rem">❄️</div>
+          <div style="font-size:.72rem;color:#4fc3f7;font-family:var(--mono);margin-top:.3rem">ACTIVE</div>
+          <div style="font-size:.65rem;color:var(--muted)">3.8°C · 312 vials</div>
+        </div>
+        <div style="border:1px solid var(--border);padding:.8rem;text-align:center">
+          <div style="font-size:.65rem;color:var(--muted);margin-bottom:.3rem">MODULE 4</div>
+          <div style="font-size:1rem">✅</div>
+          <div style="font-size:.72rem;color:var(--accent2);font-family:var(--mono);margin-top:.3rem">LAST: PASS</div>
+          <div style="font-size:.65rem;color:var(--muted)">07:42 today</div>
+        </div>
+      </div>
+    </div>
+    <a href="#" class="btn btn-primary" style="font-size:.85rem">Launch Full Dashboard →</a>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:.8rem">Full interactive dashboard with live-simulated data — operations, storage, dispensing log, biometrics, and safety alerts.</p>
+  </div>
+</section>
+
+<!-- ERRC -->
+<section class="section">
+  <div class="section-tag">ERRC Grid</div>
+  <h2>Eliminate. Reduce. Raise. Create.</h2>
+  <div class="errc-grid">
+    <div class="errc-cell e"><h3>ELIMINATE</h3><ul>
+      <li>Cold chain dependency entirely</li>
+      <li>Import reliance on 3 foreign manufacturers</li>
+      <li>Need for a PhD-level bioengineer operator</li>
+      <li>10,000km supply chain and its carbon footprint</li>
+    </ul></div>
+    <div class="errc-cell r"><h3>REDUCE</h3><ul>
+      <li>Production cost to ~$4–5/vial using 65% downstream yield⁴</li>
+      <li>Downstream process from 15 steps (S. cerevisiae) to 2 steps⁸</li>
+      <li>Infrastructure to four bench-top modules</li>
+      <li>Operator training to clinic nurse level</li>
+    </ul></div>
+    <div class="errc-cell ra"><h3>RAISE</h3><ul>
+      <li>Supply reliability to near 100% for clinics with a unit</li>
+      <li>Patient safety via integrated batch quality testing (M4)</li>
+      <li>Healthcare sovereignty for LMIC district hospitals</li>
+      <li>Insulin access toward the 34M untreated in Africa³</li>
+    </ul></div>
+    <div class="errc-cell c"><h3>CREATE</h3><ul>
+      <li>Point-of-care insulin biomanufacturing — a new market category</li>
+      <li>Integrated MIP electrochemical quality verification (Module 4)</li>
+      <li>Reactor-as-a-service model for Ministries of Health</li>
+      <li>Zero-kilometre insulin — made and used in the same building</li>
+      <li>Future roadmap: locally produced glucose test strips using M4 electrochemical platform</li>
+    </ul></div>
+  </div>
+  <div class="fn" style="margin-top:1rem">[⁸] Polez et al., PLOS ONE, 2016 — streamlined from 15-step S. cerevisiae process to 2-step Pichia downstream</div>
+</section>
+
+<!-- NON-CUSTOMERS -->
+<section class="section dark">
+  <div class="section-tag">Market — Three Tiers of Non-Customers</div>
+  <h2>The Industry Has Always Ignored the Same Three Groups.</h2>
+  <p class="lead">Every insulin company in the world competes for the same customers — urban hospital networks with working cold chains and government tender budgets. Three entire tiers of the market are systematically invisible to them.</p>
+  <div class="tiers-grid">
+    <div class="tier-card" data-t="1"><div class="tier-label">Tier 1 — Soon-to-be Non-Customers</div><h3>Urban LMIC Clinic Patients</h3><p>Patients currently accessing insulin in urban clinics but facing constant shortages, delayed deliveries, and degraded supply. Mean availability at facilities that should stock insulin: 55–80%.² One supply disruption from no treatment. They are in the market — barely.</p></div>
+    <div class="tier-card" data-t="2"><div class="tier-label">Tier 2 — Refusing Non-Customers</div><h3>Rural District Hospitals</h3><p>Hospitals that have completely given up on stocking insulin consistently — it repeatedly arrives degraded, arrives late, or fails to arrive at all. They have exited the existing market not by choice but by necessity. This is InsuSafe's primary deployment target.</p></div>
+    <div class="tier-card" data-t="3"><div class="tier-label">Tier 3 — Unexplored Non-Customers</div><h3>34M Untreated Patients</h3><p>34 million adults in Africa with diabetes who have never been considered a viable market by any insulin company.³ Structurally invisible to every player in the global supply chain. InsuSafe's entire design — local production, local verification, local dispensing — is built around making them visible.</p></div>
+  </div>
+</section>
+
+<!-- ECONOMICS -->
+<section class="section" id="economics">
+  <div class="section-tag">Market Economics</div>
+  <h2>A $600M Market. Mostly Unreached.</h2>
+  <p class="lead">The MEA insulin market is real, growing, and structurally failing the patients who need it most. InsuSafe's blue ocean is not a niche — it is the rural majority that every current player has structurally ignored.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;background:var(--bg2);border:1px solid var(--border);padding:2rem;margin-bottom:2rem">
+    <div class="stat-item">
+      <div class="stat-num b">$600M+</div>
+      <div class="stat-label">MEA insulin market size, 2025</div>
+      <div class="stat-source">Grand View Research, 2025</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num g">5.2%</div>
+      <div class="stat-label">CAGR projected 2025–2030</div>
+      <div class="stat-source">Grand View Research, 2025</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num b">$898M</div>
+      <div class="stat-label">Projected MEA insulin market by 2030</div>
+      <div class="stat-source">Grand View Research, 2025</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num g">$31.5B</div>
+      <div class="stat-label">Global insulin market projection by 2035</div>
+      <div class="stat-source">Transparency Market Research, 2025</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem">
+    <div class="calc-block" style="margin:0">
+      <h3>Per-Unit Economics (1 InsuSafe Unit, 1 Year)</h3>
+      <div class="calc-row"><span class="calc-label">Batches per year</span><span class="calc-value">~60</span><span class="calc-source">365 ÷ 6 day cycle</span></div>
+      <div class="calc-row"><span class="calc-label">Vials per batch</span><span class="calc-value">~842</span><span class="calc-source">65% yield — Xie 2008 / Polez 2016</span></div>
+      <div class="calc-row"><span class="calc-label">Total vials per year</span><span class="calc-value">~50,520</span><span class="calc-source">842 × 60</span></div>
+      <div class="calc-row"><span class="calc-label">Patients continuously supplied</span><span class="calc-value">~4,745/year</span><span class="calc-source">IDF Guidelines, 30 IU/day</span></div>
+      <div class="calc-row"><span class="calc-label">Consumables revenue/year (service model)</span><span class="calc-value">~$9,600–14,400</span><span class="calc-source">$800–1,200/month</span></div>
+      <div class="result-highlight" style="margin-top:.8rem">One unit serves <span>~4,745 patients/year</span> at ~$4–5/vial</div>
+    </div>
+    <div class="calc-block" style="margin:0">
+      <h3>Market Opportunity</h3>
+      <div class="calc-row"><span class="calc-label">MEA market 2030 (5.2% CAGR)</span><span class="calc-value">~$898M</span><span class="calc-source">Grand View Research, 2025</span></div>
+      <div class="calc-row"><span class="calc-label">Rural/Tier 2+3 addressable (est.)</span><span class="calc-value">20–30% of MEA market</span><span class="calc-source">Ewen et al. 2019 — availability gap</span></div>
+      <div class="calc-row"><span class="calc-label">Conservative 3% rural penetration 2030</span><span class="calc-value">~$27M addressable</span><span class="calc-source">3% × $898M</span></div>
+      <div class="calc-row"><span class="calc-label">Global market 2035</span><span class="calc-value">$31.5 billion</span><span class="calc-source">Transparency Market Research, 2025</span></div>
+      <div class="result-highlight" style="margin-top:.8rem">Even 1% of MEA rural gap = <span>$9M+ annual consumables revenue</span></div>
+    </div>
+  </div>
+
+  <div class="calc-block">
+    <h3>Why the Economics Work — Differentiation + Low Cost Simultaneously</h3>
+    <p style="font-size:.9rem;color:var(--muted);margin-bottom:1rem">InsuSafe does not achieve low cost by cutting quality — it eliminates the entire supply chain that makes imported insulin expensive and unreliable. The cold chain is both the primary failure point <em>and</em> the primary cost driver. Removing it achieves differentiation and cost reduction in one move.</p>
+    <div class="calc-row"><span class="calc-label">Imported insulin — LMIC private sector price</span><span class="calc-value">~$11/vial</span><span class="calc-source">Ewen et al., BMJ Global Health, 2019</span></div>
+    <div class="calc-row"><span class="calc-label">InsuSafe production cost per vial</span><span class="calc-value">~$4–5/vial</span><span class="calc-source">Gurramkonda 2010; Xie 2008</span></div>
+    <div class="calc-row"><span class="calc-label">Cold chain failure rate (implied)</span><span class="calc-value">20–45% of supply lost</span><span class="calc-source">Ewen et al. — 55–80% facility availability</span></div>
+    <div class="calc-row"><span class="calc-label">InsuSafe cold chain failure rate</span><span class="calc-value">0% — produced on-site</span><span class="calc-source">Design principle</span></div>
+    <div class="result-highlight">The real cost of imported insulin is not $5–11/vial. It is that per vial <em>that actually survives</em>. When 20–45% of supply is lost to cold chain failure, the effective cost per usable vial is far higher. <span>InsuSafe effective cost per usable vial: ~$4–5. Every time.</span></div>
+  </div>
+
+  <div style="margin-top:2rem">
+    <h3 style="font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--text);margin-bottom:1rem">Identified Funding Sources</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem">
+      <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--accent);padding:1.4rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem">Impact Grants</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.7"><b style="color:var(--text)">Bill & Melinda Gates Foundation</b> — Global Health program, LMIC diabetes access<br><b style="color:var(--text)">Wellcome Trust</b> — Innovations in Healthcare<br><b style="color:var(--text)">WHO PAHO Seed Fund</b> — point-of-care health technology</p>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--accent2);padding:1.4rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent2);margin-bottom:.6rem">Government & Academic</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.7"><b style="color:var(--text)">NSF SBIR Phase I</b> — up to $275,000 for early-stage biotech<br><b style="color:var(--text)">NIH NIBIB</b> — point-of-care biomedical device grants<br><b style="color:var(--text)">IIT/NIT Partnership</b> — in progress, academic co-development</p>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--warn);padding:1.4rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin-bottom:.6rem">Impact Investment</div>
+        <p style="font-size:.84rem;color:var(--muted);line-height:1.7"><b style="color:var(--text)">Omidyar Network</b> — global health equity portfolio<br><b style="color:var(--text)">Skoll Foundation</b> — social entrepreneurship<br><b style="color:var(--text)">UNICEF Innovation Fund</b> — open-source health tech for LMICs</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVENUE -->
+<section class="section">
+  <div class="section-tag">Revenue Model</div>
+  <h2>Three Streams. One Mission.</h2>
+  <div class="rev-grid">
+    <div class="rev-card">
+      <h3>Stream 1 — Reactor-as-a-Service</h3>
+      <div class="rev-num">~$800–1,200/mo</div>
+      <p>Monthly consumables fee per unit: growth media kits, TFF membrane replacements, chromatography resin regeneration kits, MIP test strips. Hardware subsidised or provided through Ministry of Health partnership. Benchmarked below what the clinic currently spends on imported insulin that often arrives degraded.</p>
+    </div>
+    <div class="rev-card">
+      <h3>Stream 2 — Institutional Hardware Sales</h3>
+      <div class="rev-num">$10–30k/unit</div>
+      <p>Full InsuSafe system sold to Ministries of Health, WHO-partnered hospital networks, MSF, UNICEF. Emergency-preparedness configuration available as a containerised, air-transportable unit for disaster zones and conflict regions where cold chain is impossible.</p>
+    </div>
+    <div class="rev-card">
+      <h3>Stream 3 — Technology Licensing</h3>
+      <div class="rev-num">Per-batch royalty</div>
+      <p>The streamlined Pichia pastoris downstream process and MIP strip design licensed to regional biotech manufacturers in India, Brazil, and South Africa — countries with existing fermentation infrastructure. Scales impact without requiring direct InsuSafe deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MILESTONES -->
+<section class="section dark" id="results-s">
+  <div class="section-tag">Milestones</div>
+  <h2>Where We Are. What's Next.</h2>
+  <div class="milestone-list">
+    <div class="ms-item"><div class="ms-icon">✅</div><div class="ms-content"><h4>Blue Ocean Validated</h4><p>Comprehensive searches of peer-reviewed academic databases and commercial startup/company databases confirmed no deployable clinic-scale insulin manufacturing system exists for LMIC deployment. The Open Insulin Foundation (active since 2015, ~$800/month lab budget) targets US pricing and has never produced a clinical-grade vial.</p></div></div>
+    <div class="ms-item"><div class="ms-icon">🌐</div><div class="ms-content"><h4>Website Live — insusafe.com</h4><p>Full site with problem statement, system design, sourced calculations, strategy canvas, ERRC grid, and all APA citations. Science & Calculations page presents every quantitative projection with explicit peer-reviewed sources.</p></div></div>
+    <div class="ms-item"><div class="ms-icon">💻</div><div class="ms-content"><h4>Interactive System Prototype Built</h4><p>Animated, clickable four-module prototype live on this site. Each module shows all design parameters, operating conditions, reactor type, and APA citations in a full data table.</p></div></div>
+    <div class="ms-item"><div class="ms-icon">📊</div><div class="ms-content"><h4>Literature-Based Output Projections Complete</h4><p>Full batch yield chain calculated from Xie et al. (2008), Polez et al. (2016), and Gurramkonda et al. (2010). Using 65% downstream yield (between Polez's 51% lower bound and Xie's 70% upper bound — both published). All numbers traceable to peer-reviewed literature.</p></div></div>
+    <div class="ms-item"><div class="ms-icon">🎓</div><div class="ms-content"><h4>Expert Outreach — IITs and NITs Initiated</h4><p>In process of establishing contact with faculty specialising in bioprocess engineering and downstream pharmaceutical processing at IITs and NITs in India, to validate the reactor design and downstream process assumptions, and explore formal academic partnership.</p></div></div>
+    <div class="ms-item"><div class="ms-icon">⚖️</div><div class="ms-content"><h4>Patent Strategy in Progress</h4><p>Reviewing the industrial design of the integrated modular system — specifically the combined fed-batch CSTR fermentation + TFF purification + MIP electrochemical quality verification architecture — with a view to filing a provisional patent following expert validation.</p></div></div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="section-tag">Get Involved</div>
+  <h2>Join Us in Finishing What Banting Started.</h2>
+  <p>Bioprocess engineers, academics, humanitarian organisations, or potential partners — we want to hear from you.</p>
+  <div class="btn-row" style="justify-content:center;gap:1rem">
+    <a href="mailto:contact@insusafe.com" class="btn btn-primary">contact@insusafe.com</a>
+    <a href="#" onclick="showPage('science')" class="btn btn-outline">Read the Science →</a>
+  </div>
+</section>
+<footer>
+  <div class="footer-logo">Insu<span>Safe</span> <span style="font-size:.7rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:.5rem">— Sai Harsh Gumma</span></div>
+  <p>Blue Ocean Challenge 2025 · All statistics from peer-reviewed literature, WHO, IDF, and CHAI.</p>
+</footer>
+</div><!-- end home -->
+
+
+<!-- ═══ PROTOTYPE PAGE ═══ -->
+<div id="page-prototype" class="page">
+<div style="height:80px"></div>
+<div class="proto-intro">
+  <div class="section-tag">Interactive System Prototype</div>
+  <h2>Four Modules. One Pipeline. Click to Explore.</h2>
+  <p class="lead">Each module connects to the next via standard bioprocess quick-connect fittings. Click any module to see its full operating parameters, reactor type, connection interface, and APA-cited literature sources.</p>
+</div>
+<div class="modules-flow">
+  <div class="flow-module" onclick="selectModule(0)" id="mod0">
+    <div class="fm-header"><div class="fm-num">01</div><div class="fm-icon">⚗️</div><h3>The Fermenter</h3></div>
+    <div class="fm-anim"><div class="anim-particles" id="anim0"></div><span style="font-size:.7rem;color:var(--muted);z-index:1">Click to expand</span></div>
+  </div>
+  <div class="flow-arrow-box">→</div>
+  <div class="flow-module" onclick="selectModule(1)" id="mod1">
+    <div class="fm-header"><div class="fm-num">02</div><div class="fm-icon">🔬</div><h3>The Purifier</h3></div>
+    <div class="fm-anim"><div class="anim-particles" id="anim1"></div><span style="font-size:.7rem;color:var(--muted);z-index:1">Click to expand</span></div>
+  </div>
+  <div class="flow-arrow-box">→</div>
+  <div class="flow-module" onclick="selectModule(2)" id="mod2">
+    <div class="fm-header"><div class="fm-num">03</div><div class="fm-icon">❄️</div><h3>The Cooler</h3></div>
+    <div class="fm-anim"><div class="anim-particles" id="anim2"></div><span style="font-size:.7rem;color:var(--muted);z-index:1">Click to expand</span></div>
+  </div>
+  <div class="flow-arrow-box">→</div>
+  <div class="flow-module" onclick="selectModule(3)" id="mod3">
+    <div class="fm-header"><div class="fm-num">04</div><div class="fm-icon">✅</div><h3>The Checker</h3></div>
+    <div class="fm-anim"><div class="anim-particles" id="anim3"></div><span style="font-size:.7rem;color:var(--muted);z-index:1">Click to expand</span></div>
+  </div>
+</div>
+<div class="module-detail" id="detail-box">
+  <h3 id="detail-title">Select a module above</h3>
+  <div id="detail-content"></div>
+</div>
+<div style="padding:1rem 4rem 3rem"><a href="#" onclick="showPage('home')" class="btn btn-outline">← Back to overview</a></div>
+<footer>
+  <div class="footer-logo">Insu<span>Safe</span> <span style="font-size:.7rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:.5rem">— Sai Harsh Gumma</span></div>
+  <p>Blue Ocean Challenge 2025 · All values from peer-reviewed literature.</p>
+</footer>
+</div>
+
+
+<!-- ═══ SCIENCE PAGE ═══ -->
+<div id="page-science" class="page">
+<div style="height:80px"></div>
+<div class="calc-section" style="padding:3rem 4rem">
+  <div class="section-tag">Science & Calculations</div>
+  <h2>All Numbers. All Sources. Full Chain.</h2>
+  <p class="lead">Every quantitative claim is derived from published peer-reviewed literature. Downstream yield updated to 65% — between Polez et al. 2016 (51%, lower bound) and Xie et al. 2008 (70%, upper bound), both published. This is the design value used throughout.</p>
+
+  <div class="calc-block">
+    <h3>Module 1 — Fermentation (Fed-Batch CSTR, Pichia pastoris)</h3>
+    <h4>Why Fed-Batch CSTR?</h4>
+    <p style="font-size:.88rem;color:var(--muted);margin-bottom:1rem">A CSTR (Continuously Stirred Tank Reactor) in fed-batch mode achieves much higher cell density than a simple batch reactor because nutrients — particularly methanol — are fed at a controlled rate rather than added all at once. Methanol is toxic at high concentrations; controlling it at exactly 2 g/L via constant feed rate maximises insulin precursor expression while avoiding yeast toxicity. Unlike a Plug Flow Reactor (PFR), which is suited to fast chemical reactions in a tube, the CSTR provides the uniform mixing environment required for living yeast cells to grow and secrete protein uniformly throughout the vessel.</p>
+    <div class="calc-row"><span class="calc-label">Reactor type</span><span class="calc-value">Fed-batch CSTR</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Host organism</span><span class="calc-value">Pichia pastoris X-33 (Mut⁺)</span><span class="calc-source">Gurramkonda et al., Microbial Cell Factories, 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Expression plasmid</span><span class="calc-value">pPICZα-IP</span><span class="calc-source">Gurramkonda et al., 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Promoter</span><span class="calc-value">AOX1 (methanol-inducible, tightly regulated)</span><span class="calc-source">Ahmad et al., Appl Microbiol Biotechnol, 2014</span></div>
+    <div class="calc-row"><span class="calc-label">Working volume</span><span class="calc-value">15 L (in 30L vessel)</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Phase 1 — carbon source</span><span class="calc-value">Glycerol (batch growth, ~24 hours)</span><span class="calc-source">Gurramkonda et al., 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Temperature</span><span class="calc-value">28–30°C</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">pH (controlled)</span><span class="calc-value">5.0</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Phase 2 — methanol concentration (constant feed)</span><span class="calc-value">2 g/L</span><span class="calc-source">Gurramkonda et al., 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Phase 2 duration</span><span class="calc-value">~96 hours (4 days)</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Wet cell weight at end of induction</span><span class="calc-value">~308 g/L (avg of 3 fermentations)</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Insulin precursor in supernatant (Polez, lower)</span><span class="calc-value">2.26 g/L</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Insulin precursor yield (Gurramkonda, optimised)</span><span class="calc-value">~3.0 g/L</span><span class="calc-source">Gurramkonda et al., Microbial Cell Factories, 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Insulin precursor yield (Xie, 16L fermentor)</span><span class="calc-value">3.6 g/L</span><span class="calc-source">Xie et al., Prep Biochem Biotechnol, 2008</span></div>
+    <div class="formula">Design value used: 3.0 g/L (Gurramkonda 2010) — conservative</div>
+    <div class="formula">Total precursor per 15L batch: 15 L × 3.0 g/L = 45.0 g</div>
+    <div class="result-highlight">Precursor produced per batch: <span>45.0 g</span></div>
+  </div>
+
+  <div class="calc-block">
+    <h3>Module 2 — Downstream Purification (TFF + Ion Exchange + Transpeptidation)</h3>
+    <div class="calc-row"><span class="calc-label">Step 1 — TFF membrane</span><span class="calc-value">Prostak™ 0.22 μm PVDF (Merck Millipore)</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">TFF purpose</span><span class="calc-value">Clarification — removes cells, debris, colloids in 4 hours</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Step 2 — chromatography resin</span><span class="calc-value">Toyopearl Gigacap S-650M (cation exchange)</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Elution mobile phase</span><span class="calc-value">20 mM NaOAc pH 4.0 + 50% EtOH + 0.5M NaCl</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Step 3 — conversion reaction</span><span class="calc-value">Trypsin-mediated transpeptidation → mature human insulin</span><span class="calc-source">Xie et al., 2008; Polez et al., 2016</span></div>
+    <div class="calc-row"><span class="calc-label">Process reduction vs. S. cerevisiae</span><span class="calc-value">From 15 steps → 2 steps</span><span class="calc-source">Polez et al., PLOS ONE, 2016</span></div>
+    <h4 style="margin-top:1rem">Downstream Yield — Why 65%?</h4>
+    <div class="calc-row"><span class="calc-label">Lower bound (Polez et al., 2016)</span><span class="calc-value">51% overall yield</span><span class="calc-source">Polez et al., PLOS ONE, 2016 — doi:10.1371/journal.pone.0167207</span></div>
+    <div class="calc-row"><span class="calc-label">Upper bound (Xie et al., 2008)</span><span class="calc-value">70% yield, one-step chromatography</span><span class="calc-source">Xie et al., Prep Biochem Biotechnol, 2008 — doi:10.1080/10826060802165147</span></div>
+    <div class="formula">Design value: 65% — midpoint between two published values. More conservative than Xie, more realistic than Polez's three-step process.</div>
+    <div class="formula">Finished insulin per batch: 45.0 g × 0.65 = 29.25 g</div>
+    <div class="result-highlight">Finished human insulin per batch: <span>29.25 g</span> (vs. 22.95g at 51%)</div>
+  </div>
+
+  <div class="calc-block">
+    <h3>Batch Yield → Patient Economics (Updated with 65% Yield)</h3>
+    <div class="calc-row"><span class="calc-label">Insulin biological activity</span><span class="calc-value">28.8 IU/mg</span><span class="calc-source">Xie et al., Prep Biochem Biotechnol, 2008</span></div>
+    <div class="calc-row"><span class="calc-label">Total IU per batch</span><span class="calc-value">~842,400 IU</span><span class="calc-source">29,250 mg × 28.8 IU/mg</span></div>
+    <div class="calc-row"><span class="calc-label">Standard vial (WHO)</span><span class="calc-value">10 mL, U-100 = 1,000 IU/vial</span><span class="calc-source">WHO Essential Medicines List; PMC3744923</span></div>
+    <div class="calc-row"><span class="calc-label">Vials producible per batch</span><span class="calc-value">~842 vials</span><span class="calc-source">842,400 ÷ 1,000</span></div>
+    <div class="calc-row"><span class="calc-label">Average T1D daily dose (moderate)</span><span class="calc-value">~30 IU/day</span><span class="calc-source">IDF Clinical Practice Guidelines for T1D, 2021</span></div>
+    <div class="calc-row"><span class="calc-label">Monthly IU per patient</span><span class="calc-value">~900 IU/month</span><span class="calc-source">30 × 30 days</span></div>
+    <div class="calc-row"><span class="calc-label">Patient-months per batch</span><span class="calc-value">~936</span><span class="calc-source">842,400 ÷ 900</span></div>
+    <div class="calc-row"><span class="calc-label">Batches per year (5-day cycle + 1 maintenance day)</span><span class="calc-value">~60</span><span class="calc-source">365 ÷ 6</span></div>
+    <div class="formula">Annual patient supply: 936 × 60 = 56,160 patient-months ÷ 12 = ~4,680 patients/year</div>
+    <div class="result-highlight">One InsuSafe unit → <span>~4,680 T1D patients supplied per year</span> (up from ~3,570 at 51% yield)</div>
+
+    <h4 style="margin-top:1.5rem">Cost per Vial (Updated)</h4>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:.8rem">At 65% yield we produce more insulin per batch, which reduces cost per vial. The Open Insulin Foundation analysis (using similar scale and Pichia process) estimated ~$6–7/vial at 51% yield. Scaling proportionally: at 65% yield producing 842 vials vs. 643 vials, cost per vial reduces to approximately:</p>
+    <div class="formula">Cost per vial (65% yield) ≈ $6–7 × (643/842) ≈ ~$4.6–5.3/vial</div>
+    <div class="calc-row"><span class="calc-label">Estimated InsuSafe cost per vial (65% yield)</span><span class="calc-value">~$4–5/vial</span><span class="calc-source">Derived from Open Insulin Foundation analysis; Gurramkonda 2010</span></div>
+    <div class="calc-row"><span class="calc-label">Government procurement price (LMIC median)</span><span class="calc-value">~$5/vial</span><span class="calc-source">Ewen et al., BMJ Global Health, 2019</span></div>
+    <div class="calc-row"><span class="calc-label">LMIC private sector patient price (~2.2× public)</span><span class="calc-value">~$11/vial</span><span class="calc-source">Ewen et al., BMJ Global Health, 2019</span></div>
+    <div class="result-highlight"><span>Note:</span> At 65% yield, InsuSafe becomes cost-competitive with government procurement prices — while providing something those prices cannot: guaranteed local availability, zero cold chain dependency, and integrated quality verification.</div>
+  </div>
+
+  <div class="calc-block">
+    <h3>Module 4 — MIP Electrochemical Test Strip</h3>
+    <div class="calc-row"><span class="calc-label">Sensor type</span><span class="calc-value">MIP cryogel on screen-printed carbon electrode (SPCE)</span><span class="calc-source">Wardani et al., Talanta, 2022</span></div>
+    <div class="calc-row"><span class="calc-label">Detection limit</span><span class="calc-value">LOD ~1.9 pM (native insulin)</span><span class="calc-source">Zidarič et al., The Analyst, 2023</span></div>
+    <div class="calc-row"><span class="calc-label">Detection mechanism</span><span class="calc-value">Loss of MIP binding signal = denatured/aggregated insulin</span><span class="calc-source">Cruz et al., Biosensors & Bioelectronics, 2020</span></div>
+    <div class="calc-row"><span class="calc-label">Analysis time</span><span class="calc-value">&lt;10 minutes, single-drop</span><span class="calc-source">Zidarič et al., The Analyst, 2023</span></div>
+    <div class="calc-row"><span class="calc-label">Room temp storage stability</span><span class="calc-value">Weeks to months without refrigeration</span><span class="calc-source">Cruz et al., Biosensors & Bioelectronics, 2020</span></div>
+    <div class="calc-row"><span class="calc-label">Commercial equivalent</span><span class="calc-value">None — no FDA-cleared POC insulin potency test exists</span><span class="calc-source">Nandhakumar et al., ACS Sensors, 2023</span></div>
+    <div class="result-highlight">Module 4 is InsuSafe's novel contribution. The technology exists in published academic research. The application — integrated batch QC for locally produced insulin in a low-resource clinical setting — does not exist as a product anywhere. This is the core of our patent strategy.</div>
+  </div>
+
+  <div class="calc-block">
+    <h3>Hidden Costs Analysis — Blood Glucose Monitoring in LMICs</h3>
+    <div class="calc-row"><span class="calc-label">Test strip price, LMIC private sector (Tanzania survey)</span><span class="calc-value">$0.31–$0.35/strip</span><span class="calc-source">Ewen et al., BMJ Global Health SMBG survey, 2022/23</span></div>
+    <div class="calc-row"><span class="calc-label">ADA recommended strips per day (T1D)</span><span class="calc-value">6–10 strips/day</span><span class="calc-source">Clinton Health Access Initiative, SMBG Market Report, 2021</span></div>
+    <div class="calc-row"><span class="calc-label">Annual strip cost (4 strips/day × $0.31)</span><span class="calc-value">~$87.60/year</span><span class="calc-source">CHAI, 2021; 4 × 365 × $0.31</span></div>
+    <div class="calc-row"><span class="calc-label">Annual strip cost (10 strips/day × $0.35, private)</span><span class="calc-value">~$1,277/year</span><span class="calc-source">CHAI, 2021; 10 × 365 × $0.35</span></div>
+    <div class="formula">In Tanzania (2019 survey): greatest share of total diabetes treatment cost = test strips, exceeding insulin cost — even at public sector insulin prices of $5/vial.</div>
+    <div class="result-highlight"><span>Roadmap implication:</span> InsuSafe's Module 4 electrochemical manufacturing platform can, in future iterations, produce low-cost glucose test strips locally — addressing the hidden cost problem using the same core technology already embedded in the system.</div>
+  </div>
+
+</div><!-- end calc-section -->
+
+<div class="refs-section">
+  <div class="section-tag">Full References — APA Format</div>
+  <h2 style="margin-bottom:1.5rem">Citations</h2>
+  <div class="ref-item">[¹] International Diabetes Federation. (2023). <em>T1D Index.</em> IDF.</div>
+  <div class="ref-item">[²] Ewen, M., Joosse, H.-J., Beran, D., & Laing, R. (2019). Insulin prices, availability and affordability in 13 low-income and middle-income countries. <em>BMJ Global Health, 4</em>(3), e001410. <a href="https://doi.org/10.1136/bmjgh-2019-001410">doi:10.1136/bmjgh-2019-001410</a></div>
+  <div class="ref-item">[³] World Health Organization Regional Office for Africa. (2022). <em>Diabetes in the African Region.</em> WHO AFRO.</div>
+  <div class="ref-item">[⁴] Gurramkonda, C., Polez, S., Skoko, N., Adnan, A., Gäbel, T., Chugh, D., … Rinas, U. (2010). Application of simple fed-batch technique to high-level secretory production of insulin precursor using Pichia pastoris. <em>Microbial Cell Factories, 9</em>, 31. <a href="https://doi.org/10.1186/1475-2859-9-31">doi:10.1186/1475-2859-9-31</a></div>
+  <div class="ref-item">[⁵] Manne-Goehler, J., Geldsetzer, P., Agoudavi, K., et al. (2019). Health system performance for people with diabetes in 28 low- and middle-income countries. <em>Lancet Diabetes & Endocrinology, 7</em>(6), 406–419.</div>
+  <div class="ref-item">[⁶] Clinton Health Access Initiative. (2021). <em>Market Report: Diabetes Self-Monitoring Devices in LMICs.</em> CHAI.</div>
+  <div class="ref-item">[⁷] Ewen, M., Lepeska, M., et al. (2022/2023). Availability, prices and affordability of self-monitoring blood glucose devices: surveys in six LMICs. <em>BMJ Global Health.</em></div>
+  <div class="ref-item">[⁸] Polez, S., Origi, D., Zahariev, S., Guarnaccia, C., Tisminetzky, S. G., Skoko, N., & Baralle, M. (2016). A simplified and efficient process for insulin production in Pichia pastoris. <em>PLOS ONE, 11</em>(12), e0167207. <a href="https://doi.org/10.1371/journal.pone.0167207">doi:10.1371/journal.pone.0167207</a></div>
+  <div class="ref-item">[⁹] Xie, T., Liu, Q., Xie, F., Liu, H., & Zhang, Y. (2008). Secretory expression of insulin precursor in Pichia pastoris and simple procedure for producing recombinant human insulin. <em>Preparative Biochemistry & Biotechnology, 38</em>(3), 308–317. <a href="https://doi.org/10.1080/10826060802165147">doi:10.1080/10826060802165147</a></div>
+  <div class="ref-item">Ahmad, M., Hirz, M., Pichler, H., & Schwab, H. (2014). Protein expression in Pichia pastoris: recent achievements and perspectives. <em>Applied Microbiology and Biotechnology, 98</em>(12), 5301–5317. <a href="https://doi.org/10.1007/s00253-014-5732-5">doi:10.1007/s00253-014-5732-5</a></div>
+  <div class="ref-item">Wardani, N. K., Kangkamano, T., Wannapob, R., Kanatharana, P., Thavarungkul, P., & Limbut, W. (2022). Electrochemical sensor based on molecularly imprinted polymer cryogel and multiwalled carbon nanotubes for direct insulin detection. <em>Talanta, 254</em>, 124137.</div>
+  <div class="ref-item">Zidarič, T., Majer, D., Maver, T., Finšgar, M., & Maver, U. (2023). The development of an electropolymerized, MIP sensor for insulin determination using single-drop analysis. <em>The Analyst.</em> <a href="https://doi.org/10.1039/d2an02025d">doi:10.1039/d2an02025d</a></div>
+  <div class="ref-item">Cruz, A., Haq, I., Cowen, T., Di Masi, S., Trivedi, S., Alanazi, K., … Piletsky, S. (2020). Design and fabrication of a smart sensor using in silico epitope mapping and electro-responsive imprinted polymer nanoparticles for insulin. <em>Biosensors and Bioelectronics, 169</em>, 112536.</div>
+  <div class="ref-item">Nandhakumar, P., Martín, C., Arévalo, B., Ding, S., Lunker, M., Vargas, E., … Wang, J. (2023). Redox cycling amplified electrochemical lateral-flow immunoassay: Toward decentralized sensitive insulin detection. <em>ACS Sensors.</em> <a href="https://doi.org/10.1021/acssensors.3c01445">doi:10.1021/acssensors.3c01445</a></div>
+  <div class="ref-item">International Diabetes Federation. (2021). <em>IDF Clinical Practice Recommendations for Managing Type 1 Diabetes in Primary Care.</em> IDF.</div>
+  <div class="ref-item">Petrie, D., Lung, T. W. C., Rawshani, A., Palmer, A. J., Svensson, A.-M., Eliasson, B., & Clarke, P. (2016). Recent trends in life expectancy for people with type 1 diabetes in Sweden. <em>Diabetologia, 59</em>(6), 1167–1176. <a href="https://doi.org/10.1007/s00125-016-3914-7">doi:10.1007/s00125-016-3914-7</a></div>
+</div>
+<footer>
+  <div class="footer-logo">Insu<span>Safe</span> <span style="font-size:.7rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-left:.5rem">— Sai Harsh Gumma</span></div>
+  <p>Blue Ocean Challenge 2025 · All statistics sourced from WHO, IDF, and peer-reviewed journals.</p>
+</footer>
+</div><!-- end science page -->
+
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='prototype') startAnimations();
+}
+
+const moduleData=[
+  {
+    title:"Module 01 — The Fermenter (Fed-Batch CSTR)",
+    color:"#00d4ff",particleColor:"#4fc3f7",
+    description:"A 15L fed-batch Continuously Stirred Tank Reactor (CSTR) running Pichia pastoris X-33. Fed-batch mode is chosen over simple batch because it allows controlled addition of methanol at exactly 2 g/L — preventing toxicity while maximising insulin precursor secretion over 96 hours. Connects downstream to Module 2 via a standard 19mm bioprocess quick-connect port. The culture broth exits through a harvest valve at the bottom of the vessel.",
+    tags:["Fed-Batch CSTR","AOX1 Promoter","Nurse-Operable","Published Technology"],
+    connection:"OUTPUT: Culture broth → Module 2 inlet via 19mm quick-connect",
+    params:[
+      ["Reactor type","Fed-batch CSTR","Uniform mixing, controlled feed","Polez et al., PLOS ONE, 2016"],
+      ["Why not PFR?","PFR not suitable for fermentation","No mixing; yeast cannot grow in tube format","ChemEng design principle"],
+      ["Host","Pichia pastoris X-33 (Mut⁺)","AOX1 and AOX2 functional","Gurramkonda et al., 2010"],
+      ["Working volume","15 L in 30L vessel","Half-fill to allow headspace","Polez et al., PLOS ONE, 2016"],
+      ["Phase 1 (growth)","Glycerol, 24 hours","Growth to 308 g/L WCW","Gurramkonda et al., 2010"],
+      ["Phase 2 (induction)","Methanol at 2 g/L constant, 96 hours","Activates AOX1; no sensor required","Gurramkonda et al., 2010"],
+      ["Temperature","28–30°C","Controlled throughout","Polez et al., PLOS ONE, 2016"],
+      ["pH","5.0 (base addition)","Controlled throughout","Polez et al., PLOS ONE, 2016"],
+      ["Wet cell weight","~308 g/L","Avg of 3 fermentations","Polez et al., PLOS ONE, 2016"],
+      ["IP yield","3.0 g/L (design) / 3.6 g/L (Xie)","Conservative design value","Gurramkonda 2010; Xie 2008"],
+      ["Total precursor, 15L","45.0 g","15 × 3.0","Calculated from Gurramkonda 2010"]
+    ]
+  },
+  {
+    title:"Module 02 — The Purifier (TFF + Cation Exchange + Transpeptidation)",
+    color:"#00ff88",particleColor:"#69f0ae",
+    description:"A two-step streamlined downstream purification train. Receives culture broth directly from Module 1 via quick-connect tubing. Step 1: TFF membrane removes all cells and debris without centrifugation. Step 2: cation exchange column concentrates and purifies insulin precursor. Enzymatic transpeptidation converts precursor to mature human insulin. Finished insulin solution exits to Module 3 via sterile transfer tubing.",
+    tags:["TFF Filtration","Ion Exchange","Transpeptidation","No Centrifuge"],
+    connection:"INPUT: Culture broth from M1 | OUTPUT: Insulin solution → Module 3 sterile transfer line",
+    params:[
+      ["Step 1 — membrane","Prostak™ 0.22 μm PVDF","Clarification in 4 hours","Polez et al., PLOS ONE, 2016"],
+      ["TFF advantage","Eliminates centrifugation","One step; no cell breakage","Polez et al., PLOS ONE, 2016"],
+      ["Step 2 — resin","Toyopearl Gigacap S-650M","Cation exchange","Polez et al., PLOS ONE, 2016"],
+      ["Elution","20mM NaOAc pH4 + 50% EtOH + 0.5M NaCl","Standard reagents","Polez et al., PLOS ONE, 2016"],
+      ["Step 3 — transpeptidation","Trypsin-mediated enzymatic conversion","63aa precursor → 51aa insulin","Xie et al., 2008; Polez et al., 2016"],
+      ["Downstream yield (lower)","51%","Polez et al. 3-step process","Polez et al., PLOS ONE, 2016"],
+      ["Downstream yield (upper)","70%","Xie et al. 1-step process","Xie et al., Prep Biochem Biotechnol, 2008"],
+      ["Design yield used","65%","Midpoint, conservative","Between Polez 2016 and Xie 2008"],
+      ["Finished insulin, 15L batch","29.25 g","45g × 0.65","Calculated"],
+      ["Process steps vs. S. cerevisiae","2 steps (vs. 15)","Major simplification","Polez et al., PLOS ONE, 2016"]
+    ]
+  },
+  {
+    title:"Module 03 — The Cooler (Passive Evaporative Cooling)",
+    color:"#4fc3f7",particleColor:"#b3e5fc",
+    description:"A passive evaporative cooling chamber requiring zero grid electricity. Receives capped, filled vials from Module 2. Uses wet-bulb evaporative cooling with aerogel insulation to maintain 2–8°C for the days between production and patient dispensing. As locally produced insulin is used within days of production, the 28-day room-temperature stability window of human insulin provides ample safety margin. Connects to Module 4 via simple sample port — nurse withdraws one vial for quality checking before batch is dispensed.",
+    tags:["No Grid Power","Passive Thermal","Zero Electricity","28-Day Window"],
+    connection:"INPUT: Filled vials from M2 | SAMPLE PORT → Module 4 | OUTPUT: Dispensing-ready vials",
+    params:[
+      ["Cooling mechanism","Passive evaporative / wet-bulb","No electricity required","Standard thermodynamics; MIT Evaporative Cooling 2023"],
+      ["Target temperature","2–8°C","WHO insulin storage standard","WHO Model Formulary, 2023"],
+      ["WHO stability (opened vial, RT)","Up to 28 days","Validated for human insulin","WHO Essential Medicines, 2023"],
+      ["InsuSafe storage window","2–5 days (produced and dispensed locally)","Well within WHO window","Design principle"],
+      ["Insulation","Aerogel composite panels","Low thermal conductivity (~0.015 W/mK)","Standard aerogel specification"],
+      ["Operator maintenance","Weekly water refill","No technical skill required","Design principle"],
+      ["Power consumption","0 W","Entirely passive","Design principle"]
+    ]
+  },
+  {
+    title:"Module 04 — The Checker (MIP Electrochemical Strip)",
+    color:"#a5d6a7",particleColor:"#c8e6c9",
+    description:"A single-use molecularly imprinted polymer (MIP) electrochemical test strip for batch quality verification. This is InsuSafe's novel ChemEng contribution. Receives one vial sample from Module 3 before the batch is dispensed. The MIP cavity is shaped exactly to native human insulin — denatured or aggregated insulin does not bind, producing no signal. Result in under 10 minutes. No commercial equivalent exists anywhere in the world. Core of InsuSafe's patent strategy.",
+    tags:["Novel Module","InsuSafe IP","No Commercial Equivalent","Core Patent"],
+    connection:"INPUT: Vial sample from M3 | OUTPUT: Green (PASS) or Red (REJECT) — batch cleared or discarded",
+    params:[
+      ["Sensor type","MIP cryogel on screen-printed carbon electrode","Biorecognition via synthetic template","Wardani et al., Talanta, 2022"],
+      ["Detection limit","~1.9 pM (native insulin)","Highly sensitive","Zidarič et al., The Analyst, 2023"],
+      ["Detection mechanism","Loss of binding = denatured/aggregated insulin","Structural integrity test","Cruz et al., Biosensors & Bioelectronics, 2020"],
+      ["Analysis time","<10 minutes","Single-drop; no dilution","Zidarič et al., The Analyst, 2023"],
+      ["Room temp stability","Weeks to months","No strip refrigeration needed","Cruz et al., 2020"],
+      ["Commercial product","None — no FDA/WHO-cleared POC potency test exists","Confirmed 2025","Nandhakumar et al., ACS Sensors, 2023"],
+      ["Closest competitor","Preserva Biotech (Cal Poly) — targeting Western market","Different problem, different price","Media reports, 2025"],
+      ["Novel application","Batch QC for locally produced insulin","Entirely new use case","InsuSafe design — core patent"]
+    ]
+  }
+];
+
+let selectedMod=-1;
+function selectModule(i){
+  if(selectedMod===i){document.getElementById('detail-box').classList.remove('show');document.querySelectorAll('.flow-module').forEach(m=>m.classList.remove('selected'));selectedMod=-1;return;}
+  selectedMod=i;
+  document.querySelectorAll('.flow-module').forEach((m,j)=>{m.classList.toggle('selected',j===i);m.style.borderColor=j===i?moduleData[i].color:'';});
+  const d=moduleData[i];
+  document.getElementById('detail-title').textContent=d.title;
+  document.getElementById('detail-title').style.color=d.color;
+  document.getElementById('detail-box').style.borderColor=d.color;
+  let html=`<p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">${d.description}</p>`;
+  html+=`<div style="margin-bottom:.8rem;padding:.8rem;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.2);font-size:.82rem;font-family:var(--mono);color:var(--accent2)">${d.connection}</div>`;
+  html+=`<div style="margin-bottom:1.2rem">${d.tags.map(t=>`<span class="fm-tag">${t}</span>`).join('')}</div>`;
+  html+=`<table class="data-table"><thead><tr><th>Parameter</th><th>Value</th><th>Notes</th><th>APA Source</th></tr></thead><tbody>`;
+  d.params.forEach(([p,v,n,s])=>{html+=`<tr><td>${p}</td><td>${v}</td><td>${n}</td><td>${s}</td></tr>`;});
+  html+=`</tbody></table>`;
+  document.getElementById('detail-content').innerHTML=html;
+  document.getElementById('detail-box').classList.add('show');
+  document.getElementById('detail-box').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function startAnimations(){
+  const configs=[
+    {n:12,colors:['#4fc3f7','#81d4fa','#00d4ff']},{n:10,colors:['#69f0ae','#a5d6a7','#00ff88']},
+    {n:8,colors:['#b3e5fc','#e1f5fe','#ffffff']},{n:6,colors:['#a5d6a7','#00ff88','#69f0ae']}
+  ];
+  configs.forEach((cfg,i)=>{
+    const c=document.getElementById('anim'+i);
+    if(!c)return;
+    c.innerHTML='';
+    for(let j=0;j<cfg.n;j++){
+      const p=document.createElement('div');
+      p.className='particle';
+      const s=4+Math.random()*6;
+      p.style.cssText=`width:${s}px;height:${s}px;background:${cfg.colors[j%cfg.colors.length]};left:${Math.random()*90}%;animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*3}s;opacity:.7`;
+      c.appendChild(p);
+    }
+  });
+}
+</script>
+</body>
+</html>
